@@ -1,39 +1,4 @@
-// const User = require("../models/user")
 
-// const userForget = async (req, res) => {
-//     try {
-//         const email = req.body.email
-//         if (!email) {
-//             return res.status(401).json({ message: "Please enter the mail" })
-//         }
-//         const user = await User.findOne({ email })
-//         if (!user) {
-//             return res.status(400).json({ message: "Please enter register email" })
-//         }
-//         const genotp = Math.floor(100000 + Math.random() * 900000);
-//         user.otp = genotp
-//         await user.save()
-//         console.log(user)
-
-//         const userotp = req.body.otp
-      
-//         // const userotp = req.body.otp
-
-//         if(!userotp){
-//           return res.status(401).json({message:"Please enter the otp"})  
-//         }
-//         const otpMatch = await User.findOne({userotp})
-//         if (!otpMatch) {
-//             return res.status(401).json({message:"Incorrect OTP"})
-//         }
-//         alert("OTP verified")
-//         res.status(200).json({ code: 200, message: "Success" })
-//     } catch (error) {
-//         console.log(error)
-//     }
-// }
-
-// module.exports = userForget
 
 
 const User = require("../models/user");
@@ -43,7 +8,6 @@ const userForget = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    // 1️⃣ When only email given — Generate and send OTP
     if (email && !otp) {
       const user = await User.findOne({ email });
       if (!user) {
@@ -55,7 +19,6 @@ const userForget = async (req, res) => {
       await user.save();
 
 
-      // Create transporter for Gmail
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -64,7 +27,6 @@ const userForget = async (req, res) => {
         },
       });
 
-      // Mail content
       const mailOptions = {
         from: '"Reset Flow" kingsonjozva@gmail.com',
         to: email,
@@ -78,13 +40,11 @@ const userForget = async (req, res) => {
         `,
       };
 
-      // Send mail
       await transporter.sendMail(mailOptions);
 
       return res.status(200).json({ code: 200, message: "OTP sent successfully" });
     }
 
-    // 2️⃣ When email + otp given — verify OTP
     if (email && otp) {
       const user = await User.findOne({ email });
       if (!user) {
@@ -101,11 +61,10 @@ const userForget = async (req, res) => {
       
     }
 
-    // If both missing
     return res.status(400).json({ message: "Invalid request" });
 
   } catch (error) {
-    console.log("❌ Error in forget controller:", error);
+    console.log(" Error in forget controller:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
