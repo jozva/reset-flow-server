@@ -18,14 +18,23 @@ const userForget = async (req, res) => {
       user.otp = genotp;
       await user.save();
 
-
       const transporter = nodemailer.createTransport({
-        service: "gmail",
+        // service: "gmail", // <-- இந்த வரியை கமென்ட் (comment) செய்யவும் அல்லது நீக்கவும்
+        host: "smtp.gmail.com",    // <-- இதைச் சேர்க்கவும்
+        port: 587,                 // <-- இதைச் சேர்க்கவும்
+        secure: false,             // <-- இதைச் சேர்க்கவும் (port 587-க்கு ഇത് false)
         auth: {
           user: process.env.MAIL,
           pass: process.env.PASSWORD,
         },
       });
+      // const transporter = nodemailer.createTransport({
+      //   service: "gmail",
+      //   auth: {
+      //     user: process.env.MAIL,
+      //     pass: process.env.PASSWORD,
+      //   },
+      // });
 
       const mailOptions = {
         from: '"Reset Flow" kingsonjozva@gmail.com',
