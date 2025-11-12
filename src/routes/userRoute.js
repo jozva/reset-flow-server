@@ -4,7 +4,7 @@ const route = express.Router()
 
 const userRegister = require("../controllers/register")
 const userLogin = require ("../controllers/login")
-const userForget = require("../controllers/forgot")
+const userForget = require("../controllers/forget")
 const userReset = require("../controllers/userReset")
 
 
