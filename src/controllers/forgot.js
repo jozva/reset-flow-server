@@ -59,8 +59,8 @@ const userForget = async (req, res) => {
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: "kingsonjozva@gmail.com", // 🔹 your gmail
-          pass: "xxbdlgyqnnwfdkoa", // 🔹 16-digit app password
+          user: process.env.MAIL,
+          pass: process.env.PASSWORD,
         },
       });
 
@@ -92,6 +92,7 @@ const userForget = async (req, res) => {
       }
 
       if (user.otp == otp) {
+
         await user.save();
         return res.status(200).json({ code: 200, message: "OTP verified successfully" });
       } else {

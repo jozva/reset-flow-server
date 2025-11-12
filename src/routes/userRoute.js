@@ -6,7 +6,6 @@ const userRegister = require("../controllers/register")
 const userLogin = require ("../controllers/login")
 const userForget = require("../controllers/forgot")
 const userReset = require("../controllers/userReset")
-const authenticate = require("../utils/auth")
 
 
 
