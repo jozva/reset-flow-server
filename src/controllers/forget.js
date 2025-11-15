@@ -5,6 +5,7 @@ const User = require("../models/user");
 const nodemailer = require("nodemailer");
 
 const userForget = async (req, res) => {
+  console.log(req.body)
   try {
     const { email, otp } = req.body;
 
@@ -19,34 +20,26 @@ const userForget = async (req, res) => {
       await user.save();
 
       const transporter = nodemailer.createTransport({
-        // service: "gmail", // <-- இந்த வரியை கமென்ட் (comment) செய்யவும் அல்லது நீக்கவும்
-        host: "smtp.gmail.com",    // <-- இதைச் சேர்க்கவும்
-        port: 587,                 // <-- இதைச் சேர்க்கவும்
-        secure: false,             // <-- இதைச் சேர்க்கவும் (port 587-க்கு ഇത് false)
+        host: "smtp-relay.brevo.com",
+        port: 587,
+        secure: false,
         auth: {
-          user: process.env.MAIL,
-          pass: process.env.PASSWORD,
+          user: process.env.BREVO_LOGIN,       
+          pass: process.env.PASSWORD,  
         },
       });
-      // const transporter = nodemailer.createTransport({
-      //   service: "gmail",
-      //   auth: {
-      //     user: process.env.MAIL,
-      //     pass: process.env.PASSWORD,
-      //   },
-      // });
 
       const mailOptions = {
-        from: '"Reset Flow" kingsonjozva@gmail.com',
+        from: `"Reset Flow" <${process.env.MAIL}>`,
         to: email,
         subject: "Your OTP for Password Reset",
         html: `
-          <div style="font-family:Arial; padding:10px;">
-            <h2>OTP Verification</h2>
-            <p>Your OTP for password reset is:</p>
-            <h1 style="color:#5A55E3">${genotp}</h1>
-          </div>
-        `,
+    <div style="font-family:Arial; padding:10px;">
+      <h2>OTP Verification</h2>
+      <p>Your OTP for password reset is:</p>
+      <h1 style="color:#5A55E3">${genotp}</h1>
+    </div>
+  `,
       };
 
       await transporter.sendMail(mailOptions);
@@ -67,7 +60,7 @@ const userForget = async (req, res) => {
       } else {
         return res.status(401).json({ message: "Incorrect OTP" });
       }
-      
+
     }
 
     return res.status(400).json({ message: "Invalid request" });
