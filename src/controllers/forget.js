@@ -1,11 +1,6 @@
-
-
-
 const User = require("../models/user");
-const nodemailer = require("nodemailer");
-
+const axios = require("axios"); 
 const userForget = async (req, res) => {
-  console.log(req.body)
   try {
     const { email, otp } = req.body;
 
@@ -19,30 +14,38 @@ const userForget = async (req, res) => {
       user.otp = genotp;
       await user.save();
 
-      const transporter = nodemailer.createTransport({
-        host: "smtp-relay.brevo.com",
-        port: 587,
-        secure: false,
-        auth: {
-          user: process.env.BREVO_LOGIN,       
-          pass: process.env.PASSWORD,  
+      const brevoApiKey = process.env.BREVO_API_KEY;
+      const emailData = {
+        sender: {
+          name: "Reset Flow",
+          email: process.env.SENDER_EMAIL, 
         },
-      });
-
-      const mailOptions = {
-        from: `"Reset Flow" <${process.env.MAIL}>`,
-        to: email,
+        to: [
+          {
+            email: email, 
+          },
+        ],
         subject: "Your OTP for Password Reset",
-        html: `
-    <div style="font-family:Arial; padding:10px;">
-      <h2>OTP Verification</h2>
-      <p>Your OTP for password reset is:</p>
-      <h1 style="color:#5A55E3">${genotp}</h1>
-    </div>
-  `,
+        htmlContent: `
+          <div style="font-family:Arial; padding:10px;">
+            <h2>OTP Verification</h2>
+            <p>Your OTP for password reset is:</p>
+            <h1 style="color:#5A55E3">${genotp}</h1>
+          </div>
+        `,
       };
 
-      await transporter.sendMail(mailOptions);
+      try {
+        await axios.post("https://api.brevo.com/v3/smtp/email", emailData, {
+          headers: {
+            "api-key": brevoApiKey, 
+            "content-type": "application/json",
+          },
+        });
+      } catch (emailError) {
+        console.error("Error sending email with Brevo:", emailError.response ? emailError.response.data : emailError.message);
+        return res.status(500).json({ message: "Error sending email" });
+      }
 
       return res.status(200).json({ code: 200, message: "OTP sent successfully" });
     }
@@ -54,19 +57,17 @@ const userForget = async (req, res) => {
       }
 
       if (user.otp == otp) {
-
         await user.save();
         return res.status(200).json({ code: 200, message: "OTP verified successfully" });
       } else {
         return res.status(401).json({ message: "Incorrect OTP" });
       }
-
     }
 
     return res.status(400).json({ message: "Invalid request" });
 
   } catch (error) {
-    console.log(" Error in forget controller:", error);
+    console.log(" Error in forget controller:", error); 
     res.status(500).json({ message: "Server error" });
   }
 };
